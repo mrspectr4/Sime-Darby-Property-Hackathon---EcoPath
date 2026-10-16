@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavigationTab } from '../types';
+import { Icon } from './ui/Icon';
 
 interface SidebarProps {
   currentTab: NavigationTab;
@@ -7,126 +8,118 @@ interface SidebarProps {
   isMobileOpen?: boolean;
   onCloseMobile?: () => void;
   onOpenSettings?: () => void;
+  userPoints: number;
 }
+
+/** The wordmark: a tree canopy over a dashed path. */
+const Mark: React.FC = () => (
+  <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true" className="shrink-0">
+    <rect width="32" height="32" rx="4" fill="var(--color-ink)" />
+    <path d="M5 16 Q16 3 27 16" fill="none" stroke="var(--color-paper)" strokeWidth="3" strokeLinecap="round" />
+    <path
+      d="M5 25 H27"
+      stroke="var(--color-canopy-tint)"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeDasharray="2 5"
+    />
+  </svg>
+);
 
 export const Sidebar: React.FC<SidebarProps> = ({
   currentTab,
   onSelectTab,
   isMobileOpen = false,
   onCloseMobile,
-  onOpenSettings
+  onOpenSettings,
+  userPoints
 }) => {
-  const navItems = [
-    {
-      id: 'township-map' as NavigationTab,
-      label: 'Township Map',
-      icon: 'map',
-      badge: 'Live'
-    },
-    {
-      id: 'climate-sensors' as NavigationTab,
-      label: 'Climate & Sensors',
-      icon: 'thermostat',
-      badge: '128 Nodes'
-    },
-    {
-      id: 'canopy-planner' as NavigationTab,
-      label: 'Canopy Route Planner',
-      icon: 'route',
-      badge: '88% Shade'
-    },
-    {
-      id: 'rewards' as NavigationTab,
-      label: 'Eco-Steps Rewards',
-      icon: 'award_star',
-      badge: '1,420 pts'
-    },
-    {
-      id: 'accessibility' as NavigationTab,
-      label: 'Accessibility Radar',
-      icon: 'accessible',
-      badge: 'Zero-Step'
-    }
+  const navItems: { id: NavigationTab; label: string; icon: string; note?: string }[] = [
+    { id: 'township-map', label: 'Map', icon: 'map' },
+    { id: 'climate-sensors', label: 'Climate', icon: 'thermostat', note: '128 sensors' },
+    { id: 'canopy-planner', label: 'Route planner', icon: 'route' },
+    { id: 'rewards', label: 'Rewards', icon: 'award_star', note: `${userPoints.toLocaleString()} pts` },
+    { id: 'accessibility', label: 'Accessibility', icon: 'accessible' }
   ];
 
   return (
     <>
-      {/* Mobile Backdrop */}
       {isMobileOpen && (
-        <div 
+        <div
           onClick={onCloseMobile}
-          className="lg:hidden fixed inset-0 bg-black/30 backdrop-blur-xs z-40 transition-opacity"
+          className="lg:hidden fixed inset-0 bg-ink/50 z-40"
           aria-hidden="true"
         />
       )}
 
       <aside
-        className={`fixed left-0 top-16 bottom-7 w-72 bg-white/90 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] border-r border-[#eaedff] z-40 flex flex-col justify-between p-4 transition-transform duration-300 ease-in-out ${
+        aria-label="Main"
+        className={`fixed left-0 top-0 bottom-0 w-60 bg-paper border-r border-rule-strong z-50 flex flex-col transition-transform duration-200 ease-out ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        <div className="flex flex-col gap-4">
-          <div className="px-2 pt-1 flex items-center justify-between">
-            <span className="font-sans text-[11px] uppercase tracking-wider text-[#3d4a42] font-bold">
-              Navigation Modules
-            </span>
-            <span className="w-2 h-2 rounded-full bg-[#006948] animate-pulse"></span>
+        <div className="px-5 h-14 flex items-center gap-3 border-b border-rule">
+          <Mark />
+          <div className="leading-tight">
+            <p className="figure text-[24px]" style={{ fontStretch: '82%' }}>
+              EcoPath
+            </p>
           </div>
+        </div>
 
-          <nav className="flex flex-col gap-1.5">
+        <p className="px-5 pt-4 pb-2 text-[14px] text-ink-2 leading-snug">
+          City of Elmina,
+          <br />
+          Shah Alam
+        </p>
+
+        <nav className="flex-1 px-2 py-2">
+          <ul className="flex flex-col">
             {navItems.map((item) => {
               const isActive = currentTab === item.id;
               return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => {
-                    onSelectTab(item.id);
-                    if (onCloseMobile) onCloseMobile();
-                  }}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-left font-sans text-sm ${
-                    isActive
-                      ? 'bg-[#00855d] text-white font-bold shadow-[0_4px_12px_rgba(0,105,72,0.18)] translate-x-1'
-                      : 'text-[#3d4a42] hover:bg-[#eaedff] hover:text-[#131b2e] font-medium'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className={`material-symbols-outlined text-[20px] ${isActive ? 'text-white' : 'text-[#006948]'}`}>
-                      {item.icon}
-                    </span>
-                    <span>{item.label}</span>
-                  </div>
-                  {isActive && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#85f8c4]"></span>
-                  )}
-                </button>
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelectTab(item.id);
+                      onCloseMobile?.();
+                    }}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`relative w-full flex items-center gap-3 pl-4 pr-3 min-h-11 text-left text-[15px] transition-colors ${
+                      isActive
+                        ? 'bg-wash text-ink font-semibold'
+                        : 'text-ink-2 hover:bg-wash/60 hover:text-ink'
+                    }`}
+                  >
+                    {isActive && <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-ink" />}
+                    <Icon name={item.icon} size={19} className={isActive ? 'text-ink' : 'text-ink-3'} />
+                    <span className="flex-1">{item.label}</span>
+                    {item.note && <span className="text-[13px] text-ink-3 num font-normal">{item.note}</span>}
+                  </button>
+                </li>
               );
             })}
-          </nav>
-        </div>
+          </ul>
+        </nav>
 
-        {/* Bottom System Status & Settings Trigger */}
-        <div className="flex flex-col gap-2 pt-2 border-t border-[#eaedff]">
-          <div className="p-2.5 bg-[#f2f3ff] rounded-xl flex items-center justify-between border border-[#dae2fd]/60">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#006c49] animate-ping opacity-75"></span>
-              <span className="w-2.5 h-2.5 rounded-full bg-[#006c49] -ml-4.5"></span>
-              <span className="font-sans text-xs text-[#3d4a42] font-medium">IoT Mesh Online</span>
-            </div>
-            <span className="font-sans text-xs text-[#006948] font-bold">128 Nodes</span>
-          </div>
-
+        <div className="px-2 pb-3 border-t border-rule pt-2">
           <button
             type="button"
             onClick={() => {
-              if (onOpenSettings) onOpenSettings();
-              if (onCloseMobile) onCloseMobile();
+              onOpenSettings?.();
+              onCloseMobile?.();
             }}
-            className="flex items-center gap-3 px-3 py-2 rounded-xl font-sans text-xs text-[#3d4a42] hover:bg-[#eaedff] hover:text-[#131b2e] transition-colors w-full text-left"
+            className="w-full flex items-center gap-3 pl-4 pr-3 min-h-11 text-left text-[15px] text-ink-2 hover:bg-wash/60 hover:text-ink"
           >
-            <span className="material-symbols-outlined text-[18px]">settings</span>
-            <span className="font-medium">Settings & Preferences</span>
+            <Icon name="settings" size={19} className="text-ink-3" />
+            <span>Settings</span>
           </button>
+          <p className="px-4 pt-3 text-[13px] leading-snug text-ink-3">
+            By Sime Darby Property.
+            <br />
+            GBI Platinum township.
+          </p>
         </div>
       </aside>
     </>

@@ -1,221 +1,153 @@
 import React, { useState } from 'react';
 import { ELEVATORS_STATUS } from '../data/mockData';
+import { Icon } from './ui/Icon';
+import { PageHeader } from './ui/PageHeader';
+import { Readings } from './ui/Readings';
 
 interface AccessibilityRadarViewProps {
   showToast: (msg: string) => void;
 }
 
+type Profile = 'wheelchair' | 'stroller' | 'vision';
+
+const PROFILES: { id: Profile; label: string }[] = [
+  { id: 'wheelchair', label: 'Wheelchair' },
+  { id: 'stroller', label: 'Stroller' },
+  { id: 'vision', label: 'Low vision' }
+];
+
 export const AccessibilityRadarView: React.FC<AccessibilityRadarViewProps> = ({ showToast }) => {
-  const [profileMode, setProfileMode] = useState<'wheelchair' | 'stroller' | 'vision'>('wheelchair');
+  const [profileMode, setProfileMode] = useState<Profile>('wheelchair');
   const [audioBeaconsActive, setAudioBeaconsActive] = useState(true);
 
   const handleTestAudioBeacon = () => {
-    showToast('Elmina Beacon #08 (Rainbow Bridge Approach): "Approaching gentle arched ramp, incline 2.4%, clear biophilic promenade ahead."');
+    showToast('Beacon 08, Rainbow Bridge north ramp: "Gentle arched ramp ahead, 2.4% incline, clear path."');
   };
 
   const handleBookBuggy = () => {
-    showToast('Elmina Accessible Electric Buggy dispatched to Elmina Valley 3! Arriving in 4 minutes.');
+    showToast('An accessible buggy is on its way to Elmina Valley 3. About 4 minutes.');
   };
 
+  const operational = ELEVATORS_STATUS.filter((l) => l.status === 'Operational').length;
+
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto flex flex-col gap-6 animate-in fade-in duration-300">
-      {/* Header */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-[#eaedff] flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#6cf8bb]/30 flex items-center justify-center text-[#006948] shrink-0 border border-[#6cf8bb]/50">
-            <span className="material-symbols-outlined text-[28px]">accessible</span>
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-['Plus_Jakarta_Sans'] text-xl sm:text-2xl font-bold text-[#131b2e]">
-                Universal Accessibility Radar
-              </h1>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#f2f3ff] text-[#006948] text-[10px] font-bold border border-[#dae2fd]">
-                City of Elmina • Wellness Township
-              </span>
-            </div>
-            <p className="font-sans text-xs text-[#3d4a42] mt-0.5">
-              Monitoring Malaysia's premier 90km barrier-free active mobility network, continuous tactile paving, and municipal lift telemetry.
-            </p>
-          </div>
-        </div>
-
-        {/* Mobility Profile Switch */}
-        <div className="flex items-center bg-[#f2f3ff] p-1 rounded-full border border-[#dae2fd]">
-          <button
-            type="button"
-            onClick={() => setProfileMode('wheelchair')}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              profileMode === 'wheelchair'
-                ? 'bg-[#006948] text-white shadow-xs font-bold'
-                : 'text-[#3d4a42] hover:text-[#131b2e]'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[16px]">accessible</span>
-            <span>Wheelchair</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setProfileMode('stroller')}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              profileMode === 'stroller'
-                ? 'bg-[#006948] text-white shadow-xs font-bold'
-                : 'text-[#3d4a42] hover:text-[#131b2e]'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[16px]">child_care</span>
-            <span>Family Stroller</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setProfileMode('vision')}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              profileMode === 'vision'
-                ? 'bg-[#006948] text-white shadow-xs font-bold'
-                : 'text-[#3d4a42] hover:text-[#131b2e]'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[16px]">visibility</span>
-            <span>Low-Vision</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Incline & Grade Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-3xl p-5 shadow-xs border border-[#eaedff]">
-          <div className="flex items-center justify-between text-[#3d4a42]">
-            <span className="font-sans text-[11px] font-bold uppercase tracking-wider">90km Track Continuity</span>
-            <span className="material-symbols-outlined text-[#006948] text-[20px]">check_circle</span>
-          </div>
-          <span className="font-['Plus_Jakarta_Sans'] text-2xl font-bold text-[#006948] mt-2 block">100% Step-Free</span>
-          <p className="text-xs text-[#3d4a42] mt-1">
-            Zero curb drop-offs between Elmina Valley residential precincts, Central Park, and Lakeside Mall.
-          </p>
-        </div>
-
-        <div className="bg-white rounded-3xl p-5 shadow-xs border border-[#eaedff]">
-          <div className="flex items-center justify-between text-[#3d4a42]">
-            <span className="font-sans text-[11px] font-bold uppercase tracking-wider">Rainbow Bridge Slope</span>
-            <span className="material-symbols-outlined text-[#006c49] text-[20px]">trending_up</span>
-          </div>
-          <span className="font-['Plus_Jakarta_Sans'] text-2xl font-bold text-[#006c49] mt-2 block">2.4% Incline</span>
-          <p className="text-xs text-[#3d4a42] mt-1">
-            Far below the 7.1% (1:14) maximum ADA standard, allowing effortless manual wheelchair transit across lake.
-          </p>
-        </div>
-
-        <div className="bg-white rounded-3xl p-5 shadow-xs border border-[#eaedff]">
-          <div className="flex items-center justify-between text-[#3d4a42]">
-            <span className="font-sans text-[11px] font-bold uppercase tracking-wider">Tactile Paving Coverage</span>
-            <span className="material-symbols-outlined text-[#a36700] text-[20px]">settings_accessibility</span>
-          </div>
-          <span className="font-['Plus_Jakarta_Sans'] text-2xl font-bold text-[#a36700] mt-2 block">98.4% Continuous</span>
-          <p className="text-xs text-[#3d4a42] mt-1">
-            Hazard warning studs and directional lines installed along all Elmina road crossings and transit pods.
-          </p>
-        </div>
-      </div>
-
-      {/* Real-time Elevator Status & Audio Beacons */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Elevator Status Panel */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-[#eaedff] flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-['Plus_Jakarta_Sans'] text-base font-bold text-[#131b2e]">
-              Elmina Civic Elevators & Ramp Telemetry
-            </h3>
-            <span className="px-2.5 py-0.5 rounded-full bg-[#6cf8bb]/40 text-[#00714d] text-[10px] font-bold">
-              6 of 6 Operational
-            </span>
-          </div>
-          <p className="text-xs text-[#3d4a42]">
-            Continuous IoT telemetry monitored by Sime Darby Property facility teams.
-          </p>
-
-          <div className="flex flex-col gap-2 mt-1">
-            {ELEVATORS_STATUS.map((lift) => (
-              <div
-                key={lift.id}
-                className="p-3 bg-[#faf8ff] rounded-2xl border border-[#eaedff] flex items-center justify-between text-xs"
+    <div className="mx-auto max-w-6xl px-4 sm:px-8 py-8 sm:py-10 flex flex-col gap-10">
+      <PageHeader
+        title="Accessibility"
+        description="Step-free paths, ramp gradients, tactile paving and lift status across Elmina's 90 km active mobility network."
+        actions={
+          <div className="seg" role="group" aria-label="Mobility profile">
+            {PROFILES.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                aria-pressed={profileMode === p.id}
+                onClick={() => setProfileMode(p.id)}
               >
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[#006948] text-[20px]">elevator</span>
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-[#131b2e]">{lift.location}</span>
-                    <span className="text-[10px] text-[#3d4a42]">Heartbeat ping {lift.lastCheck}</span>
-                  </div>
-                </div>
-
-                <span className="flex items-center gap-1 text-[11px] text-[#006948] font-bold">
-                  <span className="w-2 h-2 rounded-full bg-[#006948] animate-pulse"></span>
-                  {lift.status}
-                </span>
-              </div>
+                {p.label}
+              </button>
             ))}
           </div>
-        </div>
+        }
+      />
 
-        {/* Audio Beacon Wayfinding & Community Electric Buggy */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-[#eaedff] flex flex-col justify-between gap-4">
-          <div>
-            <div className="flex items-center justify-between">
-              <h3 className="font-['Plus_Jakarta_Sans'] text-base font-bold text-[#131b2e]">
-                Bluetooth Audio Wayfinding & Community Buggy
-              </h3>
-              <button
-                type="button"
-                onClick={() => setAudioBeaconsActive(!audioBeaconsActive)}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
-                  audioBeaconsActive
-                    ? 'bg-[#006948] text-white'
-                    : 'bg-[#eaedff] text-[#3d4a42]'
-                }`}
-              >
-                {audioBeaconsActive ? 'Audio Beacons: Active' : 'Beacons: Muted'}
-              </button>
-            </div>
-            <p className="text-xs text-[#3d4a42] mt-1">
-              Provides spoken turn-by-turn guidance at Rainbow Bridge, Central Park bioretention boardwalks, and ERKC pavilions.
+      <Readings
+        items={[
+          {
+            label: 'Step-free track',
+            value: '100%',
+            tone: 'text-ramp',
+            note: 'No kerb drops between the Elmina Valley precincts, Central Park and Lakeside Mall.'
+          },
+          {
+            label: 'Rainbow Bridge slope',
+            value: '2.4%',
+            tone: 'text-ramp',
+            note: 'The ADA maximum is 7.1% (1:14), so a manual wheelchair can cross the lake without help.'
+          },
+          {
+            label: 'Tactile paving',
+            value: '98.4%',
+            tone: 'text-ramp',
+            note: 'Warning studs and guide lines at every road crossing and transit pod.'
+          }
+        ]}
+      />
+
+      <div className="grid lg:grid-cols-2 gap-x-14 gap-y-12">
+        {/* Lifts */}
+        <section aria-labelledby="lifts-title">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 id="lifts-title" className="text-[28px]">
+              Lifts and ramps
+            </h2>
+            <p className="text-[15px] font-semibold num">
+              {operational} of {ELEVATORS_STATUS.length} working
             </p>
-
-            <div className="mt-4 p-4 rounded-2xl bg-[#f2f3ff] border border-[#dae2fd]/70 flex flex-col gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#006948]">
-                Nearest Active Beacon: Pod #08 (Rainbow Bridge North Ramp)
-              </span>
-              <p className="text-xs text-[#131b2e] italic">
-                "Approaching gentle arched ramp, incline 2.4%, clear biophilic promenade ahead."
-              </p>
-              <div className="flex items-center gap-2 text-[10px] text-[#3d4a42] mt-1">
-                <span>Signal: -42 dBm (Optimal)</span>
-                <span>•</span>
-                <span>Distance: 4.2 meters</span>
-              </div>
-            </div>
           </div>
+          <p className="mt-2 text-[15px] text-ink-2">Checked continuously by Sime Darby Property facilities teams.</p>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3">
+          <ul className="mt-4 border-t border-rule-strong">
+            {ELEVATORS_STATUS.map((lift) => (
+              <li
+                key={lift.id}
+                className="flex items-start justify-between gap-4 py-3 border-b border-rule"
+              >
+                <div>
+                  <p className="text-[15px] font-semibold leading-snug">{lift.location}</p>
+                  <p className="text-[13px] text-ink-2">Last checked {lift.lastCheck}</p>
+                </div>
+                <p className="shrink-0 inline-flex items-center gap-2 text-[15px]">
+                  <span
+                    className={`w-2 h-2 rounded-full ${lift.status === 'Operational' ? 'bg-canopy' : 'bg-laterite'}`}
+                  />
+                  {lift.status === 'Operational' ? 'Working' : lift.status}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* Audio beacons and buggy */}
+        <section aria-labelledby="audio-title" className="flex flex-col">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 id="audio-title" className="text-[28px]">
+              Audio guidance
+            </h2>
             <button
               type="button"
-              onClick={handleTestAudioBeacon}
-              className="w-full sm:w-1/2 py-2.5 rounded-full bg-[#eaedff] hover:bg-[#e2e7ff] text-[#131b2e] font-sans text-xs font-bold transition-colors flex items-center justify-center gap-2"
+              role="switch"
+              aria-checked={audioBeaconsActive}
+              onClick={() => setAudioBeaconsActive(!audioBeaconsActive)}
+              className="text-[15px] font-semibold underline underline-offset-4 decoration-rule-strong hover:decoration-ink"
             >
-              <span className="material-symbols-outlined text-[18px]">volume_up</span>
-              <span>Test Audio Cue</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleBookBuggy}
-              className="w-full sm:w-1/2 py-2.5 rounded-full bg-[#006948] hover:bg-[#00855d] text-white font-sans text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-xs"
-            >
-              <span className="material-symbols-outlined text-[18px]">electric_rickshaw</span>
-              <span>Request Elmina Buggy</span>
+              {audioBeaconsActive ? 'Beacons on' : 'Beacons muted'}
             </button>
           </div>
-        </div>
+          <p className="mt-2 text-[15px] text-ink-2 max-w-[56ch]">
+            Bluetooth beacons speak turn-by-turn directions at Rainbow Bridge, the Central Park boardwalks and the ERKC pavilions.
+          </p>
+
+          <figure className="mt-5 border-l-2 border-ramp pl-4">
+            <blockquote className="text-[18px] leading-snug">
+              &ldquo;Gentle arched ramp ahead, 2.4% incline, clear path.&rdquo;
+            </blockquote>
+            <figcaption className="mt-2 text-[14px] text-ink-2 num">
+              Nearest beacon: 08, Rainbow Bridge north ramp. 4.2 m away, signal -42 dBm.
+            </figcaption>
+          </figure>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <button type="button" onClick={handleTestAudioBeacon} className="btn btn-secondary">
+              <Icon name="volume_up" size={17} />
+              Play this cue
+            </button>
+            <button type="button" onClick={handleBookBuggy} className="btn btn-primary">
+              <Icon name="electric_rickshaw" size={17} />
+              Request a buggy
+            </button>
+          </div>
+        </section>
       </div>
     </div>
   );
