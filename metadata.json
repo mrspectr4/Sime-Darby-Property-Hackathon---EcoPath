@@ -1,0 +1,8 @@
+{
+  "name": " EcoPath - Township Command",
+  "description": "Eco-Tech Township Command \u0026 Canopy Navigation System for micro-climate routing, shade finding, safe night corridors, and eco-steps rewards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
