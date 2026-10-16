@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { NavigationTab, EducationalPin } from './types';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
-import { Footer } from './components/Footer';
 import { TownshipMap } from './components/TownshipMap';
 import { ClimateSensorsView } from './components/ClimateSensorsView';
 import { CanopyRoutePlannerView } from './components/CanopyRoutePlannerView';
@@ -23,36 +22,33 @@ export default function App() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showToast = (msg: string) => {
+  // Stable identity so effects that depend on showToast don't restart on every render.
+  const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3500);
-  };
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToastMessage(null), 4000);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    };
+  }, []);
 
   const handleRedeem = (amount: number, voucherName: string) => {
     setUserPoints((prev) => Math.max(0, prev - amount));
-    showToast(`Voucher redeemed: ${voucherName} (-${amount} pts)`);
+    showToast(`Redeemed: ${voucherName} (-${amount} pts)`);
   };
 
-  const handleReportSubmit = (category: string, zone: string, notes: string) => {
+  const handleReportSubmit = (category: string) => {
     setUserPoints((prev) => prev + 20);
-    showToast(`Issue reported: "${category}". Municipal team alerted! +20 Eco-Steps added.`);
+    showToast(`Report sent: ${category}. The township team has been alerted. +20 Eco-Steps.`);
   };
 
   return (
-    <div className="min-h-screen bg-[#faf8ff] text-[#131b2e] flex flex-col font-sans selection:bg-[#85f8c4] selection:text-[#002114]">
-      {/* Fixed Top Header */}
-      <Header
-        onOpenNotifications={() => showToast('Displaying 3 active civic micro-climate alerts.')}
-        onOpenProfile={() => setIsRewardsModalOpen(true)}
-        onOpenFilter={() => showToast('Display layer filters: High contrast & canopy mesh enabled.')}
-        onToggleMobileNav={() => setIsMobileNavOpen(!isMobileNavOpen)}
-        isMobileNavOpen={isMobileNavOpen}
-      />
-
-      {/* Left Navigation Sidebar */}
+    <div className="min-h-screen bg-ground text-ink">
       <Sidebar
         currentTab={currentTab}
         onSelectTab={(tab) => {
@@ -62,11 +58,19 @@ export default function App() {
         isMobileOpen={isMobileNavOpen}
         onCloseMobile={() => setIsMobileNavOpen(false)}
         onOpenSettings={() => setIsSettingsModalOpen(true)}
+        userPoints={userPoints}
       />
 
-      {/* Main Screen Content Viewport */}
-      <div className="lg:pl-72 flex flex-col flex-1 min-h-screen">
-        <main className="relative pt-16 pb-7 w-full bg-[#faf8ff] flex-1">
+      <div className="lg:pl-60 min-h-screen flex flex-col">
+        <Header
+          userPoints={userPoints}
+          onOpenNotifications={() => showToast('3 active climate alerts.')}
+          onOpenProfile={() => setIsRewardsModalOpen(true)}
+          onToggleMobileNav={() => setIsMobileNavOpen(!isMobileNavOpen)}
+          isMobileNavOpen={isMobileNavOpen}
+        />
+
+        <main className="relative pt-14 flex-1">
           {currentTab === 'township-map' && (
             <TownshipMap
               onOpenEduModal={(pin) => setActiveEduPin(pin)}
@@ -77,63 +81,47 @@ export default function App() {
             />
           )}
 
-          {currentTab === 'climate-sensors' && (
-            <ClimateSensorsView showToast={showToast} />
-          )}
+          {currentTab === 'climate-sensors' && <ClimateSensorsView showToast={showToast} />}
 
           {currentTab === 'canopy-planner' && (
             <CanopyRoutePlannerView
               onSelectRouteAndNavigate={() => {
                 setCurrentTab('township-map');
-                showToast('Canopy Greenway Spine loaded into live map navigation!');
+                showToast('Route loaded on the map.');
               }}
               showToast={showToast}
             />
           )}
 
           {currentTab === 'rewards' && (
-            <RewardsView
-              userPoints={userPoints}
-              onRedeem={handleRedeem}
-              showToast={showToast}
-            />
+            <RewardsView userPoints={userPoints} onRedeem={handleRedeem} showToast={showToast} />
           )}
 
-          {currentTab === 'accessibility' && (
-            <AccessibilityRadarView showToast={showToast} />
-          )}
+          {currentTab === 'accessibility' && <AccessibilityRadarView showToast={showToast} />}
         </main>
       </div>
 
-      {/* Fixed Bottom Telemetry Footer */}
-      <Footer />
+      {activeEduPin && <EduModal pin={activeEduPin} onClose={() => setActiveEduPin(null)} />}
 
-      {/* Interactive Modals */}
-      <EduModal
-        pin={activeEduPin}
-        onClose={() => setActiveEduPin(null)}
-      />
+      {isReportModalOpen && (
+        <ReportDefectModal
+          onClose={() => setIsReportModalOpen(false)}
+          onSubmit={handleReportSubmit}
+        />
+      )}
 
-      <ReportDefectModal
-        isOpen={isReportModalOpen}
-        onClose={() => setIsReportModalOpen(false)}
-        onSubmit={handleReportSubmit}
-      />
+      {isRewardsModalOpen && (
+        <RewardsModal
+          onClose={() => setIsRewardsModalOpen(false)}
+          userPoints={userPoints}
+          onRedeem={handleRedeem}
+        />
+      )}
 
-      <RewardsModal
-        isOpen={isRewardsModalOpen}
-        onClose={() => setIsRewardsModalOpen(false)}
-        userPoints={userPoints}
-        onRedeem={handleRedeem}
-      />
+      {isSettingsModalOpen && (
+        <SettingsModal onClose={() => setIsSettingsModalOpen(false)} showToast={showToast} />
+      )}
 
-      <SettingsModal
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
-        showToast={showToast}
-      />
-
-      {/* Toast Banner */}
       <Toast message={toastMessage} />
     </div>
   );

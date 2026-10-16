@@ -61,7 +61,7 @@ export const MapOverlays: React.FC<MapOverlaysProps> = ({
     ELMINA_CANOPY_ZONES.forEach((zone) => {
       const polygon = new google.maps.Polygon({
         paths: zone.coordinates,
-        strokeColor: '#006948',
+        strokeColor: '#1e6b45',
         strokeOpacity: 0.9,
         strokeWeight: 2,
         fillColor: zone.color,
@@ -99,10 +99,10 @@ export const MapOverlays: React.FC<MapOverlaysProps> = ({
 
     SAFENIGHT_LIGHT_POSTS.forEach((post) => {
       const circle = new google.maps.Circle({
-        strokeColor: '#FFB95F',
+        strokeColor: '#e8a33a',
         strokeOpacity: 0.8,
         strokeWeight: 1.5,
-        fillColor: '#FFB95F',
+        fillColor: '#e8a33a',
         fillOpacity: isNightTheme ? 0.26 : 0.16,
         map,
         center: post.position,
@@ -146,7 +146,7 @@ export const MapOverlays: React.FC<MapOverlaysProps> = ({
         const line = new google.maps.Polyline({
           path: segment,
           geodesic: true,
-          strokeColor: '#00855D',
+          strokeColor: '#1e6b45',
           strokeOpacity: isNightTheme ? 0.35 : 0.55,
           strokeWeight: 5,
           map,
@@ -162,7 +162,7 @@ export const MapOverlays: React.FC<MapOverlaysProps> = ({
         const line = new google.maps.Polyline({
           path: segment,
           geodesic: true,
-          strokeColor: '#FFB95F',
+          strokeColor: '#e8a33a',
           strokeOpacity: isNightTheme ? 0.65 : 0.45,
           strokeWeight: 4,
           map,
@@ -178,7 +178,7 @@ export const MapOverlays: React.FC<MapOverlaysProps> = ({
         const line = new google.maps.Polyline({
           path: segment,
           geodesic: true,
-          strokeColor: '#005137',
+          strokeColor: '#2a5da8',
           strokeOpacity: 0.5,
           strokeWeight: 5,
           map,
@@ -274,8 +274,8 @@ export const MapOverlays: React.FC<MapOverlaysProps> = ({
     if (showShade && activeShadePath && activeShadePath.length > 1) {
       addActiveRoute(
         activeShadePath,
-        '#006948',
-        '#85F8C4',
+        '#1e6b45',
+        '#dce7d5',
         selectedMode === 'shade' ? 8 : 5,
         selectedMode === 'shade' ? 30 : 25,
         'Active Canopy Corridor',
@@ -287,8 +287,8 @@ export const MapOverlays: React.FC<MapOverlaysProps> = ({
     if (showNight && activeNightPath && activeNightPath.length > 1) {
       addActiveRoute(
         activeNightPath,
-        '#A36700',
-        '#FFB95F',
+        '#7a4f00',
+        '#e8a33a',
         selectedMode === 'night' ? 8 : 5,
         selectedMode === 'night' ? 31 : 26,
         'Active SafeNight Illuminated Route',
@@ -300,8 +300,8 @@ export const MapOverlays: React.FC<MapOverlaysProps> = ({
     if (showBarrierFree && activeBarrierPath && activeBarrierPath.length > 1) {
       addActiveRoute(
         activeBarrierPath,
-        '#005137',
-        '#F59E0B',
+        '#2a5da8',
+        '#e8a33a',
         selectedMode === 'barrier' ? 8 : 5,
         selectedMode === 'barrier' ? 32 : 27,
         'Active Barrier-Free Wayfinding Route',
